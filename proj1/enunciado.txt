@@ -1,0 +1,41 @@
+INF2608 – Fundamentos da Computação Gráfica
+Projeto 1: Algoritmo de Traçado de Raio
+Prof. Waldemar Celes
+Departamento de Informática, PUC-Rio
+1 de abril de 2025
+
+O objetivo deste projeto é renderizar uma cena 3D usando o algoritmo de traçado de raios.
+O trabalho é individual.
+
+A aplicação básica a ser desenvolvida deve atender aos seguintes requisitos:
+• A cena deve ser criada com instanciação de esferas e caixas.
+• A cena deve ser iluminada por uma ou mais fontes de luz pontual.
+• A cena deve ser renderizada com iluminação direta, usando o modelo Phong e com geração
+de sombras.
+• A cena deve poder ser renderizada com múltiplas amostras (distribuição uniforme) por
+pixel.
+
+Para a avaliação, os pontos associados a essa aplicação básica são 7.0 pontos. Além disso, a
+aplicação deve ser estendida com os itens abaixo, a escolher. Espera-se que sejam implementados 3.0 pontos:
+• Aplicação de transformações de modelagem na instanciação de formas geométricas: 1.0
+ponto.
+• Instanciação de geometria representada por triângulos (sem estrutura de aceleração): 1.0
+ponto.
+• Instanciação de uma malha de triângulos com estrutura de aceleração: 2.0 pontos.
+• Instanciação de fonte de luz retangular (com uma distribuição de amostras qualquer escolhida): 1.0 ponto.
+• Comparação de diferentes distribuições de amostras na fonte retangular: 1.0 ponto.
+• Instanciação de objetos reflexivos: 1.0 ponto.
+• Instanciação de objetos refratários: 2.0 pontos.
+
+O aluno também deve apresentar um relatório explicando o trabalho desenvolvido, com
+screenshots para ilustrar os resultados da renderização de diferentes pontos de vista. A qualidade
+do relatório também faz parte do critério de avaliação. De forma geral, o relatório deve conter:
+• Descrição das técnicas adotadas.
+• Imagens ilustrando o resultado obtido da renderização da cena escolhida.
+• Imagens comparando o uso de diferentes números de amostras por pixel.
+• Imagens demonstrando os efeitos escolhidos para a extensão da aplicação básica.
+
+Entrega: Enviar o relatório (formato pdf) e o código fonte (apenas o código fonte codificado
+pelo aluno). O envio deve ser feito via página da disciplina no EAD até quarta-feira, dia 7
+de maio. O EAD aceitará submissão em atraso até quarta, dia 14 de maio, com perda de 1,0
+ponto na avaliação.
