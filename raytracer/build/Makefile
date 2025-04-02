@@ -142,6 +142,19 @@ enhanced_scene/fast:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/enhanced_scene.dir/build.make CMakeFiles/enhanced_scene.dir/build
 .PHONY : enhanced_scene/fast
 
+#=============================================================================
+# Target rules for targets named cornell_box_teste
+
+# Build rule for target.
+cornell_box_teste: cmake_check_build_system
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 cornell_box_teste
+.PHONY : cornell_box_teste
+
+# fast build rule for target.
+cornell_box_teste/fast:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/cornell_box_teste.dir/build.make CMakeFiles/cornell_box_teste.dir/build
+.PHONY : cornell_box_teste/fast
+
 examples/cornell_box.o: examples/cornell_box.cpp.o
 .PHONY : examples/cornell_box.o
 
@@ -165,6 +178,30 @@ examples/cornell_box.s: examples/cornell_box.cpp.s
 examples/cornell_box.cpp.s:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/cornell_box.dir/build.make CMakeFiles/cornell_box.dir/examples/cornell_box.cpp.s
 .PHONY : examples/cornell_box.cpp.s
+
+examples/cornell_box_teste.o: examples/cornell_box_teste.cpp.o
+.PHONY : examples/cornell_box_teste.o
+
+# target to build an object file
+examples/cornell_box_teste.cpp.o:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/cornell_box_teste.dir/build.make CMakeFiles/cornell_box_teste.dir/examples/cornell_box_teste.cpp.o
+.PHONY : examples/cornell_box_teste.cpp.o
+
+examples/cornell_box_teste.i: examples/cornell_box_teste.cpp.i
+.PHONY : examples/cornell_box_teste.i
+
+# target to preprocess a source file
+examples/cornell_box_teste.cpp.i:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/cornell_box_teste.dir/build.make CMakeFiles/cornell_box_teste.dir/examples/cornell_box_teste.cpp.i
+.PHONY : examples/cornell_box_teste.cpp.i
+
+examples/cornell_box_teste.s: examples/cornell_box_teste.cpp.s
+.PHONY : examples/cornell_box_teste.s
+
+# target to generate assembly for a file
+examples/cornell_box_teste.cpp.s:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/cornell_box_teste.dir/build.make CMakeFiles/cornell_box_teste.dir/examples/cornell_box_teste.cpp.s
+.PHONY : examples/cornell_box_teste.cpp.s
 
 examples/enhanced_scene.o: examples/enhanced_scene.cpp.o
 .PHONY : examples/enhanced_scene.o
@@ -199,10 +236,14 @@ help:
 	@echo "... edit_cache"
 	@echo "... rebuild_cache"
 	@echo "... cornell_box"
+	@echo "... cornell_box_teste"
 	@echo "... enhanced_scene"
 	@echo "... examples/cornell_box.o"
 	@echo "... examples/cornell_box.i"
 	@echo "... examples/cornell_box.s"
+	@echo "... examples/cornell_box_teste.o"
+	@echo "... examples/cornell_box_teste.i"
+	@echo "... examples/cornell_box_teste.s"
 	@echo "... examples/enhanced_scene.o"
 	@echo "... examples/enhanced_scene.i"
 	@echo "... examples/enhanced_scene.s"

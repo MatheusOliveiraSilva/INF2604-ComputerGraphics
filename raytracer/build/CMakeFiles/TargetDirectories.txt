@@ -1,4 +1,5 @@
 /Users/matheussilva/Documents/masters/INF2604-ComputerGraphics/raytracer/build/CMakeFiles/cornell_box.dir
 /Users/matheussilva/Documents/masters/INF2604-ComputerGraphics/raytracer/build/CMakeFiles/enhanced_scene.dir
+/Users/matheussilva/Documents/masters/INF2604-ComputerGraphics/raytracer/build/CMakeFiles/cornell_box_teste.dir
 /Users/matheussilva/Documents/masters/INF2604-ComputerGraphics/raytracer/build/CMakeFiles/edit_cache.dir
 /Users/matheussilva/Documents/masters/INF2604-ComputerGraphics/raytracer/build/CMakeFiles/rebuild_cache.dir
