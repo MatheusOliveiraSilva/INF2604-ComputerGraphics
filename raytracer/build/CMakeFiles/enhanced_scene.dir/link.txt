@@ -1,0 +1,1 @@
+/usr/bin/c++ -O3 -arch arm64 -Wl,-search_paths_first -Wl,-headerpad_max_install_names CMakeFiles/enhanced_scene.dir/examples/enhanced_scene.cpp.o -o bin/enhanced_scene

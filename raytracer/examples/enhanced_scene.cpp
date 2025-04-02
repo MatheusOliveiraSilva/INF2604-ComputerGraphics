@@ -17,15 +17,15 @@
 int main() {
     // Configuração da imagem - aumentando amostras por pixel para maior qualidade
     int imageWidth = 800;
-    int imageHeight = 600;
-    int samplesPerPixel = 100;  // Aumentado ainda mais para qualidade superior
+    int imageHeight = 800; // Alterado para formato quadrado como na imagem de referência
+    int samplesPerPixel = 1000;  // Aumentado ainda mais para reduzir ruído
     int maxDepth = 5;          // Mantido para profundidade de reflexão
 
-    // Configuração da câmera para Cornell Box clássica - afastada para mostrar mais da cena
-    Vector3 cameraPosition(2.775f, 2.775f, 15.0f);  // Afastando a câmera
+    // Configuração da câmera para Cornell Box clássica
+    Vector3 cameraPosition(2.775f, 2.775f, 15.0f);
     Vector3 lookAt(2.775f, 2.775f, 0.0f);
     Vector3 up(0.0f, 1.0f, 0.0f);
-    float fov = 35.0f;        // FOV reduzido para compensar o afastamento
+    float fov = 35.0f;
     float aspectRatio = float(imageWidth) / float(imageHeight);
     float focalLength = 1.0f;
     
@@ -34,33 +34,33 @@ int main() {
     // Configuração da cena
     Scene scene;
     
-    // Materiais - ajustados para corresponder à imagem
+    // Materiais ajustados para corresponder à imagem de referência
     std::shared_ptr<Material> whiteMaterial = std::make_shared<Material>(
         Color(0.4f, 0.4f, 0.4f),    // ambiente
-        Color(0.8f, 0.8f, 0.8f),    // difuso
-        Color(0.1f, 0.1f, 0.1f),    // especular
-        10.0f                       // brilho
+        Color(0.9f, 0.9f, 0.9f),    // difuso - mais brilhante
+        Color(0.0f, 0.0f, 0.0f),    // especular
+        0.0f                        // brilho
     );
     
     std::shared_ptr<Material> redMaterial = std::make_shared<Material>(
-        Color(0.2f, 0.0f, 0.0f),    // ambiente
-        Color(0.8f, 0.0f, 0.0f),    // difuso - mais saturado
-        Color(0.0f, 0.0f, 0.0f),    // especular
-        0.0f                        // brilho
+        Color(0.15f, 0.0f, 0.0f),    // ambiente
+        Color(0.9f, 0.0f, 0.0f),     // difuso - mais saturado
+        Color(0.0f, 0.0f, 0.0f),     // especular
+        0.0f                         // brilho
     );
     
     std::shared_ptr<Material> greenMaterial = std::make_shared<Material>(
-        Color(0.0f, 0.2f, 0.0f),    // ambiente
-        Color(0.0f, 0.8f, 0.0f),    // difuso - mais saturado
-        Color(0.0f, 0.0f, 0.0f),    // especular
-        0.0f                        // brilho
+        Color(0.0f, 0.15f, 0.0f),    // ambiente
+        Color(0.0f, 0.9f, 0.0f),     // difuso - mais saturado
+        Color(0.0f, 0.0f, 0.0f),     // especular
+        0.0f                         // brilho
     );
     
     std::shared_ptr<Material> grayMaterial = std::make_shared<Material>(
-        Color(0.2f, 0.2f, 0.2f),    // ambiente
-        Color(0.5f, 0.5f, 0.5f),    // difuso - mais claro para melhor visualização
-        Color(0.1f, 0.1f, 0.1f),    // especular para dar brilho sutil
-        5.0f                        // brilho
+        Color(0.15f, 0.15f, 0.15f),  // ambiente
+        Color(0.4f, 0.4f, 0.4f),     // difuso - mais escuro para corresponder à referência
+        Color(0.0f, 0.0f, 0.0f),     // especular
+        0.0f                         // brilho
     );
     
     // Material para a lâmpada (luz brilhante)
@@ -71,16 +71,8 @@ int main() {
         0.0f                        // brilho
     );
     
-    // Material metálico para a haste da luminária
-    std::shared_ptr<Material> metalMaterial = std::make_shared<Material>(
-        Color(0.3f, 0.3f, 0.3f),    // ambiente
-        Color(0.7f, 0.7f, 0.7f),    // difuso
-        Color(0.9f, 0.9f, 0.9f),    // especular
-        80.0f                       // brilho (alto para aparência metálica)
-    );
-    
     // Paredes da cena (Cornell Box)
-    // Parede frontal
+    // Parede frontal (fundo)
     scene.addObject(new Box(Vector3(-0.10f, -0.10f, -0.10f), Vector3(5.65f, 5.65f, 0.0f), whiteMaterial.get()));
     
     // Parede à esquerda (verde)
@@ -108,48 +100,42 @@ int main() {
     Translate* smallBoxPos = new Translate(rotatedSmallBox, 3.40f, 0.0f, 3.65f);
     scene.addObject(smallBoxPos);
     
-    // Criando a luminária
+    // Lâmpada simples embutida no teto (pequena esfera)
+    Vector3 lightPosition(2.775f, 5.45f, 2.775f);  // Posição da luz logo abaixo do teto
+    scene.addObject(new Sphere(lightPosition, 0.1f, lightMaterial.get()));
     
-    // Posição da luminária
-    Vector3 lightPosition(2.775f, 4.85f, 2.775f);  // Abaixando mais a luz
+    // Fonte de luz de área para criar a iluminação suave (simulação de uma área)
+    // Usamos múltiplas luzes pontuais em uma área para criar o efeito de luz difusa
+    float areaRadius = 0.8f;
+    int areaLightSamples = 8;
+    float intensityPerSample = 0.5f / areaLightSamples;
     
-    // Base da luminária no teto (pequeno disco)
-    Vector3 basePosition(2.775f, 5.55f, 2.775f);
-    scene.addObject(new Box(
-        Vector3(basePosition.x - 0.15f, basePosition.y - 0.05f, basePosition.z - 0.15f),
-        Vector3(basePosition.x + 0.15f, basePosition.y, basePosition.z + 0.15f),
-        metalMaterial.get()
-    ));
+    // Luz central mais intensa
+    PointLight* centralLight = new PointLight(lightPosition, Color(1.0f, 1.0f, 1.0f));
+    scene.addLight(centralLight);
     
-    // Haste da luminária (cilindro fino - aproximado com caixas finas)
-    scene.addObject(new Box(
-        Vector3(lightPosition.x - 0.025f, lightPosition.y, lightPosition.z - 0.025f),
-        Vector3(lightPosition.x + 0.025f, basePosition.y - 0.05f, lightPosition.z + 0.025f),
-        metalMaterial.get()
-    ));
+    // Luzes auxiliares em um padrão circular para simular uma fonte de luz de área
+    for (int i = 0; i < areaLightSamples; i++) {
+        float angle = 2.0f * M_PI * i / areaLightSamples;
+        float x = lightPosition.x + areaRadius * cos(angle);
+        float z = lightPosition.z + areaRadius * sin(angle);
+        
+        Vector3 samplePos(x, lightPosition.y, z);
+        PointLight* areaLight = new PointLight(samplePos, Color(intensityPerSample, intensityPerSample, intensityPerSample));
+        scene.addLight(areaLight);
+    }
     
-    // Lâmpada (esfera brilhante)
-    scene.addObject(new Sphere(lightPosition, 0.15f, lightMaterial.get()));
-    
-    // Luz pontual no teto - posicionada na lâmpada
-    PointLight* pointLight = new PointLight(lightPosition, Color(1.5f, 1.5f, 1.5f));
-    scene.addLight(pointLight);
-    
-    // Segunda fonte de luz secundária para suavizar sombras
-    PointLight* ambientLight = new PointLight(Vector3(1.0f, 5.0f, 4.5f), Color(0.1f, 0.1f, 0.1f));
-    scene.addLight(ambientLight);
-    
-    // Luz ambiente - reduzida para destacar sombras
-    scene.setAmbientLight(AmbientLight(0.18f, 0.18f, 0.18f));
+    // Luz ambiente - ajustada para balancear a cena
+    scene.setAmbientLight(AmbientLight(0.15f, 0.15f, 0.15f));
     
     // Renderizar a cena
     Renderer renderer(imageWidth, imageHeight, samplesPerPixel, maxDepth);
     std::vector<std::vector<Color>> pixels = renderer.render(scene, camera);
     
     // Salvar a imagem
-    renderer.saveToPPM(pixels, "cornell_box.ppm");
+    renderer.saveToPPM(pixels, "cornell_box_reference.ppm");
     
-    std::cout << "Imagem salva como cornell_box.ppm" << std::endl;
+    std::cout << "Imagem salva como cornell_box_reference.ppm" << std::endl;
     
     return 0;
 } 

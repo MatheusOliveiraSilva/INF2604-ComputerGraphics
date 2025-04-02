@@ -1,0 +1,1 @@
+/usr/bin/c++ -O3 -arch arm64 -Wl,-search_paths_first -Wl,-headerpad_max_install_names CMakeFiles/cornell_box.dir/examples/cornell_box.cpp.o -o bin/cornell_box
