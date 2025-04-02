@@ -1,28 +1,30 @@
 cmake_minimum_required(VERSION 3.10)
-project(Raytracer VERSION 1.0)
+project(Raytracer)
 
-# C++ standard
-set(CMAKE_CXX_STANDARD 17)
+# Configuração do C++
+set(CMAKE_CXX_STANDARD 11)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
-# Include directories
-include_directories(${CMAKE_SOURCE_DIR}/include)
-
-# Source files
-file(GLOB_RECURSE SOURCES "src/*.cpp")
-
-# Executable
-add_executable(raytracer ${SOURCES})
-
-# Testing
-enable_testing()
-
-# Compiler flags
-if(MSVC)
-    target_compile_options(raytracer PRIVATE /W4)
-else()
-    target_compile_options(raytracer PRIVATE -Wall -Wextra -pedantic)
+# Modo de compilação
+if(NOT CMAKE_BUILD_TYPE)
+  set(CMAKE_BUILD_TYPE Release)
 endif()
 
-# Output directory
-set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin) 
+# Opções de compilação
+set(CMAKE_CXX_FLAGS_DEBUG "-g")
+set(CMAKE_CXX_FLAGS_RELEASE "-O3")
+
+# Diretórios de inclusão
+include_directories(${CMAKE_SOURCE_DIR})
+
+# Executável da Cornell Box
+add_executable(cornell_box examples/cornell_box.cpp)
+
+# Executável para cena com recursos extras
+add_executable(enhanced_scene examples/enhanced_scene.cpp)
+
+# Configurar diretório de saída dos binários
+set(EXECUTABLE_OUTPUT_PATH ${CMAKE_BINARY_DIR}/bin)
+
+# Criar pasta de saída para imagens
+file(MAKE_DIRECTORY ${CMAKE_BINARY_DIR}/output) 

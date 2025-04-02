@@ -1,21 +1,20 @@
 #ifndef RAY_H
 #define RAY_H
 
-#include "../utils/Vector3D.h"
+#include "Vector3.h"
 
 class Ray {
 public:
-    Vector3D origin;      // Origem do raio
-    Vector3D direction;   // Direção do raio (normalizada)
+    Vector3 origin;
+    Vector3 direction;
 
     // Construtores
-    Ray() = default;
-    
-    Ray(const Vector3D& origin, const Vector3D& direction)
-        : origin(origin), direction(direction.normalized()) {}
-    
-    // Calcula ponto ao longo do raio: o + t*d
-    Vector3D pointAtParameter(double t) const {
+    Ray() {}
+    Ray(const Vector3& origin, const Vector3& direction)
+        : origin(origin), direction(direction) {}
+
+    // Retorna o ponto no raio para um determinado valor de t (parâmetro)
+    Vector3 pointAtParameter(float t) const {
         return origin + direction * t;
     }
 };

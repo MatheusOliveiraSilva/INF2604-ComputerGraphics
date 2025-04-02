@@ -1,4 +1,0 @@
-/Users/matheussilva/Documents/masters/INF2604-ComputerGraphics/raytracer/build/CMakeFiles/raytracer.dir
-/Users/matheussilva/Documents/masters/INF2604-ComputerGraphics/raytracer/build/CMakeFiles/test.dir
-/Users/matheussilva/Documents/masters/INF2604-ComputerGraphics/raytracer/build/CMakeFiles/edit_cache.dir
-/Users/matheussilva/Documents/masters/INF2604-ComputerGraphics/raytracer/build/CMakeFiles/rebuild_cache.dir

@@ -1,152 +1,149 @@
 #ifndef RENDERER_H
 #define RENDERER_H
 
+#include <vector>
 #include <iostream>
 #include <fstream>
-#include <vector>
-#include <memory>
-#include <random>
 #include <limits>
-#include "Scene.h"
+#include <cstdlib>  // Para rand()
+#include <functional> // Para std::function
 #include "Camera.h"
-#include "../utils/Color.h"
-#include "../material/Material.h"
-
-// Gerador de números aleatórios
-inline double randomDouble() {
-    static std::uniform_real_distribution<double> distribution(0.0, 1.0);
-    static std::mt19937 generator;
-    return distribution(generator);
-}
+#include "Color.h"
+#include "../geometry/Scene.h"
+#include "../material/ReflectiveMaterial.h"
 
 class Renderer {
-private:
-    int width;                 // Largura da imagem em pixels
-    int height;                // Altura da imagem em pixels
-    int samplesPerPixel;       // Número de amostras por pixel para antialiasing
-    int maxDepth;              // Profundidade máxima de recursão
+public:
+    int width;              // Largura da imagem em pixels
+    int height;             // Altura da imagem em pixels
+    int samplesPerPixel;    // Número de amostras por pixel
+    int maxDepth;           // Profundidade máxima de raios recursivos
     
-    // Calcula a cor para um raio específico
-    Color rayColor(const Ray& ray, const Scene& scene, int depth) const {
-        // Se atingiu a profundidade máxima, retorna preto
-        if (depth <= 0) return Colors::BLACK;
+    // Construtor
+    Renderer(int width, int height, int samplesPerPixel = 1, int maxDepth = 5)
+        : width(width), height(height), samplesPerPixel(samplesPerPixel), maxDepth(maxDepth) {}
+    
+    // Renderiza a cena e retorna uma matriz de pixels
+    std::vector<std::vector<Color>> render(const Scene& scene, const Camera& camera) {
+        std::vector<std::vector<Color>> pixels(height, std::vector<Color>(width));
+        
+        for (int j = 0; j < height; j++) {
+            for (int i = 0; i < width; i++) {
+                Color pixelColor(0, 0, 0);
+                
+                // Múltiplas amostras por pixel para antialiasing
+                for (int s = 0; s < samplesPerPixel; s++) {
+                    float u = float(i + randomFloat()) / float(width);
+                    float v = float(j + randomFloat()) / float(height);
+                    Ray ray = camera.getRay(u, v);
+                    pixelColor += traceRay(ray, scene, 0);
+                }
+                
+                // Média das amostras
+                pixelColor = pixelColor / float(samplesPerPixel);
+                
+                // Correção gamma (aproximação simples com raiz quadrada)
+                pixelColor = Color(sqrt(pixelColor.r), sqrt(pixelColor.g), sqrt(pixelColor.b));
+                
+                pixels[height - j - 1][i] = pixelColor; // Inverter eixo Y para origem no canto inferior esquerdo
+            }
+            
+            // Exibir progresso
+            std::cerr << "\rRendering: " << static_cast<int>(100.0f * j / height) << "% " << std::flush;
+        }
+        
+        std::cerr << "\rRendering: 100% \n";
+        return pixels;
+    }
+    
+    // Salva a imagem em formato PPM
+    void saveToPPM(const std::vector<std::vector<Color>>& pixels, const std::string& filename) {
+        std::ofstream file(filename, std::ios::out);
+        
+        // Cabeçalho do arquivo PPM
+        file << "P3\n" << width << " " << height << "\n255\n";
+        
+        // Pixels
+        for (const auto& row : pixels) {
+            for (const auto& pixel : row) {
+                file << static_cast<int>(pixel.getR255()) << ' '
+                     << static_cast<int>(pixel.getG255()) << ' '
+                     << static_cast<int>(pixel.getB255()) << '\n';
+            }
+        }
+        
+        file.close();
+    }
+    
+private:
+    // Traça um raio na cena com recursão para reflexões
+    Color traceRay(const Ray& ray, const Scene& scene, int depth) {
+        if (depth >= maxDepth) return Color(0, 0, 0);
         
         HitRecord record;
         
-        // Verifica se o raio atinge algum objeto
-        if (scene.hit(ray, 0.001, std::numeric_limits<double>::infinity(), record)) {
-            // Cálculo de iluminação - modelo Phong
-            return shadingPhong(ray, record, scene);
+        // Verificar interseção com a cena
+        if (scene.hit(ray, 0.001f, std::numeric_limits<float>::infinity(), record)) {
+            // Calcular iluminação direta (Phong)
+            Color directColor = calculateDirectLight(ray, scene, record);
+            
+            // Verificar se é um material reflexivo
+            ReflectiveMaterial* reflMat = dynamic_cast<ReflectiveMaterial*>(record.material);
+            if (reflMat != nullptr) {
+                // Calcular reflexão
+                Color reflectedColor = reflMat->calculateReflection(
+                    ray, record, depth,
+                    [this, &scene](const Ray& r, int d) { return this->traceRay(r, scene, d); }
+                );
+                
+                // Combinar cor direta com reflexão
+                return directColor * (1.0f - reflMat->reflectivity) + reflectedColor * reflMat->reflectivity;
+            }
+            
+            // Material não reflexivo - retornar apenas cor direta
+            return directColor;
         }
         
-        // Se não atingiu nada, retorna cor de fundo (gradiente)
-        Vector3D unitDirection = ray.direction;
-        double t = 0.5 * (unitDirection.y + 1.0);
-        return Colors::WHITE * (1.0 - t) + Color(0.5, 0.7, 1.0) * t;
+        // Sem interseção - cor de fundo (gradiente simples)
+        Vector3 unitDirection = normalize(ray.direction);
+        float t = 0.5f * (unitDirection.y + 1.0f);
+        return Color(1.0f, 1.0f, 1.0f) * (1.0f - t) + Color(0.5f, 0.7f, 1.0f) * t;
     }
     
-    // Implementação do modelo de iluminação Phong
-    Color shadingPhong(const Ray& ray, const HitRecord& hit, const Scene& scene) const {
-        // Componente ambiente global
-        const Color& ambientGlobal = scene.getAmbientLight();
-        
-        // Propriedades do material
-        const std::shared_ptr<Material>& material = hit.material;
-        Color ambient = material->getAmbient();
-        Color diffuse = material->getDiffuse();
-        Color specular = material->getSpecular();
-        double shininess = material->getShininess();
-        
-        // Inicializa com componente ambiente
-        Color result = ambient * ambientGlobal;
-        
-        // Direção para o observador
-        Vector3D viewDir = (ray.origin - hit.point).normalized();
+    // Calcula a iluminação direta em um ponto
+    Color calculateDirectLight(const Ray& ray, const Scene& scene, const HitRecord& record) {
+        // Iluminação ambiente
+        Color color = scene.ambientLight.intensity * record.material->ambient;
         
         // Para cada fonte de luz
-        for (const auto& light : scene.getLights()) {
-            // Direção e distância até a luz
-            Vector3D lightDir = light->getDirection(hit.point);
-            double lightDistance = light->getDistance(hit.point);
+        for (const auto& light : scene.lights) {
+            // Verificar sombra
+            bool inShadow = scene.isShadowed(record.point, light);
             
-            // Verifica sombra: se houver algo entre o ponto e a luz
-            bool inShadow = false;
-            Ray shadowRay(hit.point + hit.normal * 0.001, lightDir);
-            HitRecord shadowRecord;
-            
-            if (scene.hit(shadowRay, 0.001, lightDistance, shadowRecord)) {
-                inShadow = true;
-            }
-            
-            // Se não estiver em sombra, calcula a cor
+            // Se não estiver na sombra, ou estiver com sombra parcial
             if (!inShadow) {
-                // Intensidade da luz no ponto
-                Color lightIntensity = light->getIntensity(hit.point);
+                Vector3 lightDir = light->getDirection(record.point);
+                Color lightIntensity = light->getIntensity(record.point);
                 
-                // Componente difuso: cos(ângulo) entre normal e luz
-                double diffuseFactor = std::max(0.0, hit.normal.dot(lightDir));
+                // Calcular fator de atenuação baseado na distância
+                float distance = light->getDistance(record.point);
+                float attenuation = 1.0f / (1.0f + 0.01f * distance + 0.001f * distance * distance);
                 
-                // Componente especular: reflexão da luz
-                Vector3D reflectDir = lightDir * -1.0 + hit.normal * 2.0 * hit.normal.dot(lightDir);
-                reflectDir.normalize();
-                double specularFactor = std::pow(std::max(0.0, viewDir.dot(reflectDir)), shininess);
+                // Ajustar intensidade da luz conforme a atenuação
+                Color adjustedIntensity = lightIntensity * attenuation;
                 
-                // Acumula contribuições
-                result += diffuse * lightIntensity * diffuseFactor;
-                result += specular * lightIntensity * specularFactor;
+                // Adicionar iluminação usando o modelo Phong
+                color += record.material->shade(ray, record, lightDir, adjustedIntensity);
             }
         }
         
-        // Limita os valores entre 0 e 1
-        result.clamp();
-        return result;
+        return color;
     }
-
-public:
-    Renderer(int width, int height, int samplesPerPixel = 1, int maxDepth = 50)
-        : width(width), height(height), samplesPerPixel(samplesPerPixel), maxDepth(maxDepth) {}
     
-    // Renderiza a cena e salva em um arquivo PPM
-    void render(const Scene& scene, const Camera& camera, const std::string& outputFile) const {
-        // Abre o arquivo de saída
-        std::ofstream out(outputFile);
-        
-        // Cabeçalho do arquivo PPM
-        out << "P3\n" << width << " " << height << "\n255\n";
-        
-        // Para cada pixel da imagem
-        for (int j = height - 1; j >= 0; --j) {
-            std::cerr << "\rLinhas restantes: " << j << ' ' << std::flush;
-            
-            for (int i = 0; i < width; ++i) {
-                Color pixelColor(0, 0, 0);
-                
-                // Amostragem múltipla para antialiasing
-                for (int s = 0; s < samplesPerPixel; ++s) {
-                    // Coordenadas de pixel aleatórias dentro do pixel
-                    double u = (i + randomDouble()) / (width - 1);
-                    double v = (j + randomDouble()) / (height - 1);
-                    
-                    // Gera raio da câmera passando pelo pixel
-                    Ray ray = camera.getRay(u, v);
-                    
-                    // Acumula a cor
-                    pixelColor += rayColor(ray, scene, maxDepth);
-                }
-                
-                // Média das amostras e correção gamma
-                pixelColor = pixelColor * (1.0 / samplesPerPixel);
-                pixelColor.r = sqrt(pixelColor.r);
-                pixelColor.g = sqrt(pixelColor.g);
-                pixelColor.b = sqrt(pixelColor.b);
-                
-                // Escreve o valor do pixel
-                out << pixelColor << "\n";
-            }
-        }
-        
-        std::cerr << "\nRenderização concluída.\n";
+    // Número aleatório entre 0 e 1
+    float randomFloat() {
+        return rand() / (RAND_MAX + 1.0f);
     }
 };
 
-#endif // RENDERER_H 
+#endif
