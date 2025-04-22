@@ -8,7 +8,7 @@ BUILD_DIR = build
 OUTPUT_DIR = output
 
 # Alvos principais
-.PHONY: all basic reflective clean
+.PHONY: all basic reflective rectlight clean
 
 # Alvo padrão
 all: basic
@@ -50,6 +50,23 @@ reflective: $(BUILD_DIR) $(OUTPUT_DIR)
 		echo "Convertendo PPM para PNG..."; \
 		convert $(OUTPUT_DIR)/reflective_scene.ppm $(OUTPUT_DIR)/reflective_scene.png; \
 		echo "Imagem convertida para $(OUTPUT_DIR)/reflective_scene.png"; \
+	else \
+		echo "ImageMagick não encontrado. A imagem foi salva apenas no formato PPM."; \
+	fi
+
+# Alvo 'rectlight': compila e executa a Cornell Box com luz retangular
+rectlight: $(BUILD_DIR) $(OUTPUT_DIR)
+	@echo "Compilando Cornell Box com luz retangular..."
+	$(CXX) $(CXXFLAGS) $(INC_DIR) $(SRC_DIR)/rectangular_light_scene.cpp -o $(BUILD_DIR)/rectangular_light_scene
+	@echo "Executando o raytracer para Cornell Box com luz retangular..."
+	cd $(BUILD_DIR) && ./rectangular_light_scene
+	@echo "Movendo a imagem para o diretório de saída..."
+	mv $(BUILD_DIR)/rectangular_light_scene.ppm $(OUTPUT_DIR)/cornell_box_rectlight.ppm
+	@echo "Imagem salva como $(OUTPUT_DIR)/cornell_box_rectlight.ppm"
+	@if command -v convert >/dev/null 2>&1; then \
+		echo "Convertendo PPM para PNG..."; \
+		convert $(OUTPUT_DIR)/cornell_box_rectlight.ppm $(OUTPUT_DIR)/cornell_box_rectlight.png; \
+		echo "Imagem convertida para $(OUTPUT_DIR)/cornell_box_rectlight.png"; \
 	else \
 		echo "ImageMagick não encontrado. A imagem foi salva apenas no formato PPM."; \
 	fi
