@@ -10,13 +10,14 @@
 #include "../include/transform/Translate.h"
 #include "../include/transform/Rotate.h"
 #include "../include/light/PointLight.h"
+#include "../include/light/RectangularLight.h"
 #include "../include/light/AmbientLight.h"
 
 int main() {
     // Configuração da imagem
     int imageWidth = 800;
     int imageHeight = 600;
-    int samplesPerPixel = 25; 
+    int samplesPerPixel = 100; // Aumentando para melhor qualidade com a luz de área
     int maxDepth = 5;          
 
     // Configuração da câmera
@@ -88,26 +89,33 @@ int main() {
     Translate* smallBoxPos = new Translate(rotatedSmallBox, 3.40f, 0.0f, 3.65f);
     scene.addObject(smallBoxPos);
     
-    // Lâmpada (esfera no teto)
-    Vector3 lightPosition(2.775f, 5.45f, 2.775f);
-    scene.addObject(new Sphere(lightPosition, 0.1f, lightMaterial.get()));
+    // Objeto luminoso para visualização (um retângulo ou esfera pequena no teto)
+    // Cria um retângulo que representa a área da luz
+    float lightWidth = 1.0f;
+    float lightHeight = 1.0f;
+    Vector3 lightCenter(2.775f, 5.54f, 2.775f);
+    Vector3 lightMin = lightCenter - Vector3(lightWidth/2, 0.0f, lightHeight/2);
+    Vector3 lightMax = lightCenter + Vector3(lightWidth/2, 0.01f, lightHeight/2);
+    scene.addObject(new Box(lightMin, lightMax, lightMaterial.get()));
     
     // Configuração da iluminação
-    // Luz central com intensidade aumentada para compensar a remoção das luzes auxiliares
-    PointLight* centralLight = new PointLight(lightPosition, Color(1.5f, 1.5f, 1.5f));
-    scene.addLight(centralLight);
+    // Luz retangular no teto
+    RectangularLight* rectLight = RectangularLight::createRectInCornellBoxCeiling(
+        lightWidth, lightHeight, Color(1.5f, 1.5f, 1.5f)
+    );
+    scene.addLight(rectLight);
     
     // Luz ambiente
-    scene.setAmbientLight(AmbientLight(0.15f, 0.15f, 0.15f));
+    scene.setAmbientLight(AmbientLight(0.05f, 0.05f, 0.05f));
     
     // Renderizar a cena
     Renderer renderer(imageWidth, imageHeight, samplesPerPixel, maxDepth);
     std::vector<std::vector<Color>> pixels = renderer.render(scene, camera);
     
     // Salvar a imagem
-    renderer.saveToPPM(pixels, "cornell_box_reference.ppm");
+    renderer.saveToPPM(pixels, "rectangular_light_scene.ppm");
     
-    std::cout << "Imagem salva como cornell_box_reference.ppm" << std::endl;
+    std::cout << "Imagem salva como rectangular_light_scene.ppm" << std::endl;
     
     return 0;
 } 
