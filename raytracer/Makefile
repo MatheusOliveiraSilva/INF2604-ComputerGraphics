@@ -8,7 +8,7 @@ BUILD_DIR = build
 OUTPUT_DIR = output
 
 # Alvos principais
-.PHONY: all basic clean
+.PHONY: all basic reflective clean
 
 # Alvo padrão
 all: basic
@@ -33,6 +33,23 @@ basic: $(BUILD_DIR) $(OUTPUT_DIR)
 		echo "Convertendo PPM para PNG..."; \
 		convert $(OUTPUT_DIR)/cornell_box_800x600_25samples.ppm $(OUTPUT_DIR)/cornell_box_800x600_25samples.png; \
 		echo "Imagem convertida para $(OUTPUT_DIR)/cornell_box_800x600_25samples.png"; \
+	else \
+		echo "ImageMagick não encontrado. A imagem foi salva apenas no formato PPM."; \
+	fi
+
+# Alvo 'reflective': compila e executa a cena com a esfera reflexiva
+reflective: $(BUILD_DIR) $(OUTPUT_DIR)
+	@echo "Compilando cena com superfície reflexiva..."
+	$(CXX) $(CXXFLAGS) $(INC_DIR) $(SRC_DIR)/reflective_scene.cpp -o $(BUILD_DIR)/reflective_scene
+	@echo "Executando o raytracer para cena reflexiva..."
+	cd $(BUILD_DIR) && ./reflective_scene
+	@echo "Movendo a imagem para o diretório de saída..."
+	mv $(BUILD_DIR)/reflective_scene.ppm $(OUTPUT_DIR)/reflective_scene.ppm
+	@echo "Imagem salva como $(OUTPUT_DIR)/reflective_scene.ppm"
+	@if command -v convert >/dev/null 2>&1; then \
+		echo "Convertendo PPM para PNG..."; \
+		convert $(OUTPUT_DIR)/reflective_scene.ppm $(OUTPUT_DIR)/reflective_scene.png; \
+		echo "Imagem convertida para $(OUTPUT_DIR)/reflective_scene.png"; \
 	else \
 		echo "ImageMagick não encontrado. A imagem foi salva apenas no formato PPM."; \
 	fi
