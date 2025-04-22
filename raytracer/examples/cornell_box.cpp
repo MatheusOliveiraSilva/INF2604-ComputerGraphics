@@ -93,24 +93,9 @@ int main() {
     scene.addObject(new Sphere(lightPosition, 0.1f, lightMaterial.get()));
     
     // Configuração da iluminação
-    // Luz central
-    PointLight* centralLight = new PointLight(lightPosition, Color(1.0f, 1.0f, 1.0f));
+    // Luz central com intensidade aumentada para compensar a remoção das luzes auxiliares
+    PointLight* centralLight = new PointLight(lightPosition, Color(1.5f, 1.5f, 1.5f));
     scene.addLight(centralLight);
-    
-    // Luzes auxiliares para simular iluminação de área
-    float areaRadius = 0.8f;
-    int areaLightSamples = 8;
-    float intensityPerSample = 0.5f / areaLightSamples;
-    
-    for (int i = 0; i < areaLightSamples; i++) {
-        float angle = 2.0f * M_PI * i / areaLightSamples;
-        float x = lightPosition.x + areaRadius * cos(angle);
-        float z = lightPosition.z + areaRadius * sin(angle);
-        
-        Vector3 samplePos(x, lightPosition.y, z);
-        PointLight* areaLight = new PointLight(samplePos, Color(intensityPerSample, intensityPerSample, intensityPerSample));
-        scene.addLight(areaLight);
-    }
     
     // Luz ambiente
     scene.setAmbientLight(AmbientLight(0.15f, 0.15f, 0.15f));
