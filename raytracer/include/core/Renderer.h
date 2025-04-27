@@ -13,6 +13,7 @@
 #include "Color.h"
 #include "../geometry/Scene.h"
 #include "../material/ReflectiveMaterial.h"
+#include "../material/EmissiveMaterial.h"
 
 class Renderer {
 public:
@@ -130,6 +131,13 @@ private:
         
         // Verificar interseção com a cena
         if (scene.hit(ray, 0.001f, std::numeric_limits<float>::infinity(), record)) {
+            // Verificar se é um material emissivo (lâmpada visível)
+            if (dynamic_cast<EmissiveMaterial*>(record.material) != nullptr) {
+                // Para materiais emissivos, retornamos diretamente a cor de emissão
+                // ignorando outras contribuições de luz.
+                return record.material->ambient; // 'ambient' armazena a cor de emissão
+            }
+            
             // Calcular iluminação direta (Phong)
             Color directColor = calculateDirectLight(ray, scene, record);
             

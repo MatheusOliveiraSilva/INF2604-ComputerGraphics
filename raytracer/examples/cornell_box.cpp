@@ -11,6 +11,7 @@
 #include "../include/transform/Rotate.h"
 #include "../include/light/PointLight.h"
 #include "../include/light/AmbientLight.h"
+#include "../include/material/EmissiveMaterial.h"
 
 int main() {
     // Configuração da imagem
@@ -61,11 +62,9 @@ int main() {
         0.0f                        // brilho
     );
     
-    std::shared_ptr<Material> lightMaterial = std::make_shared<Material>(
-        Color(1.0f, 1.0f, 1.0f),    // ambiente
-        Color(1.0f, 1.0f, 1.0f),    // difuso
-        Color(1.0f, 1.0f, 1.0f),    // especular
-        0.0f                        // brilho
+    // Material emissivo para a lâmpada: ela deve aparecer branca (cor da própria luz).
+    std::shared_ptr<EmissiveMaterial> lightMaterial = std::make_shared<EmissiveMaterial>(
+        Color(1.0f, 1.0f, 1.0f)
     );
     
     // Paredes da cena (Cornell Box)
