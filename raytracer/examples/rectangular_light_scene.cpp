@@ -101,12 +101,12 @@ int main() {
     // Configuração da iluminação
     // Luz retangular no teto
     RectangularLight* rectLight = RectangularLight::createRectInCornellBoxCeiling(
-        lightWidth, lightHeight, Color(1.5f, 1.5f, 1.5f)
+        lightWidth, lightHeight, Color(3.0f, 3.0f, 3.0f)
     );
     scene.addLight(rectLight);
     
     // Luz ambiente
-    scene.setAmbientLight(AmbientLight(0.05f, 0.05f, 0.05f));
+    scene.setAmbientLight(AmbientLight(0.15f, 0.15f, 0.15f));
     
     // Renderizar a cena
     Renderer renderer(imageWidth, imageHeight, samplesPerPixel, maxDepth);

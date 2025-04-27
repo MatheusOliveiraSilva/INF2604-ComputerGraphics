@@ -7,8 +7,12 @@ SRC_DIR = examples
 BUILD_DIR = build
 OUTPUT_DIR = output
 
+# Scenes and sample counts for generation
+SCENES = cornell_box rectangular_light_scene reflective_floor
+SAMPLES = 1 5 25 100
+
 # Alvos principais
-.PHONY: all basic reflective rectlight reflectivefloor clean
+.PHONY: all basic reflective rectlight reflectivefloor clean generate_samples
 
 # Alvo padrão
 all: basic
@@ -87,6 +91,17 @@ reflectivefloor: $(BUILD_DIR) $(OUTPUT_DIR)
 	else \
 		echo "ImageMagick não encontrado. A imagem foi salva apenas no formato PPM."; \
 	fi
+
+# Alvo 'generate_samples': gera imagens com diferentes números de amostras para cenas selecionadas
+# Calls the generate_scene_samples.sh script for each scene.
+generate_samples: $(BUILD_DIR) $(OUTPUT_DIR)
+	@echo "Gerando imagens com diferentes amostras via script..."
+	@for scene in $(SCENES); do \
+		echo "--- Running generation script for scene: $${scene} ---"; \
+		./generate_scene_samples.sh $${scene}; \
+		echo "--- Finished generation script for scene: $${scene} ---"; \
+	done
+	@echo "Geração de imagens concluída."
 
 # Limpeza
 clean:
