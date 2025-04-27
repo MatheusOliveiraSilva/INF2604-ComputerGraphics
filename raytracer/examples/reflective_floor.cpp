@@ -54,13 +54,13 @@ int main() {
         32.0f
     );
 
-    // Piso reflexivo (80 %)
+    // Piso reflexivo, mas com um leve componente difuso/ambiente para que seja visível.
     auto reflectiveFloor = std::make_shared<ReflectiveMaterial>(
-        Color(0.02f, 0.02f, 0.02f), // ambiente
-        Color(0.2f, 0.2f, 0.2f),    // difuso cinza
-        Color(0.9f, 0.9f, 0.9f),    // especular forte
-        64.0f,                      // shininess
-        0.8f                        // reflectivity 80 %
+        Color(0.05f, 0.05f, 0.05f), // componente ambiente para tornar o chão visível de forma uniforme
+        Color(0.0f,  0.0f,  0.0f),  // difuso zero → evita discos de sombra
+        Color(0.8f,  0.8f,  0.8f),  // apenas especular (highlight)
+        96.0f,                      // shininess
+        0.9f                        // 90 % reflexividade (mistura pequena do termo direto)
     );
 
     // Geometria ----------------------------------------------------------------
