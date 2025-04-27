@@ -12,6 +12,7 @@
 #include "../include/light/PointLight.h"
 #include "../include/light/AmbientLight.h"
 #include "../include/material/ReflectiveMaterial.h"
+#include "../include/material/EmissiveMaterial.h"
 
 int main() {
     // Configuração da imagem
@@ -48,11 +49,13 @@ int main() {
         32.0f                      // brilho
     );
     
-    std::shared_ptr<Material> whiteMaterial = std::make_shared<Material>(
-        Color(0.1f, 0.1f, 0.1f),   // ambiente
-        Color(0.8f, 0.8f, 0.8f),   // difuso
-        Color(0.1f, 0.1f, 0.1f),   // especular
-        32.0f                      // brilho
+    // Material reflexivo para o chão (espelhado, mas não perfeitamente)
+    std::shared_ptr<ReflectiveMaterial> floorMaterial = std::make_shared<ReflectiveMaterial>(
+        Color(0.02f, 0.02f, 0.02f),   // ambiente (escuro para não iluminar demais)
+        Color(0.25f, 0.25f, 0.25f),   // difuso cinza
+        Color(0.9f, 0.9f, 0.9f),      // especular forte
+        64.0f,                        // brilho (highlight mais concentrado)
+        0.6f                          // 60% reflexivo
     );
     
     // Material reflexivo para a esfera central (aumentando a reflexividade para 90%)
@@ -65,7 +68,7 @@ int main() {
     );
     
     // Chão (plano branco)
-    scene.addObject(new Box(Vector3(-20.0f, -1.0f, -20.0f), Vector3(20.0f, 0.0f, 20.0f), whiteMaterial.get()));
+    scene.addObject(new Box(Vector3(-20.0f, -1.0f, -20.0f), Vector3(20.0f, 0.0f, 20.0f), floorMaterial.get()));
     
     // Apenas duas esferas coloridas (azul e amarela)
     scene.addObject(new Sphere(Vector3(-3.0f, 1.5f, 4.0f), 1.5f, blueMaterial.get()));    // Mais próxima da câmera

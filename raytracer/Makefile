@@ -8,7 +8,7 @@ BUILD_DIR = build
 OUTPUT_DIR = output
 
 # Alvos principais
-.PHONY: all basic reflective rectlight clean
+.PHONY: all basic reflective rectlight reflectivefloor clean
 
 # Alvo padrão
 all: basic
@@ -67,6 +67,23 @@ rectlight: $(BUILD_DIR) $(OUTPUT_DIR)
 		echo "Convertendo PPM para PNG..."; \
 		convert $(OUTPUT_DIR)/cornell_box_rectlight.ppm $(OUTPUT_DIR)/cornell_box_rectlight.png; \
 		echo "Imagem convertida para $(OUTPUT_DIR)/cornell_box_rectlight.png"; \
+	else \
+		echo "ImageMagick não encontrado. A imagem foi salva apenas no formato PPM."; \
+	fi
+
+# Alvo 'reflectivefloor': compila e executa a cena com piso reflexivo
+reflectivefloor: $(BUILD_DIR) $(OUTPUT_DIR)
+	@echo "Compilando cena com piso reflexivo..."
+	$(CXX) $(CXXFLAGS) $(INC_DIR) $(SRC_DIR)/reflective_floor.cpp -o $(BUILD_DIR)/reflective_floor
+	@echo "Executando o raytracer para cena com piso reflexivo..."
+	cd $(BUILD_DIR) && ./reflective_floor
+	@echo "Movendo a imagem para o diretório de saída..."
+	mv $(BUILD_DIR)/reflective_floor_scene.ppm $(OUTPUT_DIR)/reflective_floor_scene.ppm
+	@echo "Imagem salva como $(OUTPUT_DIR)/reflective_floor_scene.ppm"
+	@if command -v convert >/dev/null 2>&1; then \
+		echo "Convertendo PPM para PNG..."; \
+		convert $(OUTPUT_DIR)/reflective_floor_scene.ppm $(OUTPUT_DIR)/reflective_floor_scene.png; \
+		echo "Imagem convertida para $(OUTPUT_DIR)/reflective_floor_scene.png"; \
 	else \
 		echo "ImageMagick não encontrado. A imagem foi salva apenas no formato PPM."; \
 	fi
