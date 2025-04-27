@@ -1,6 +1,92 @@
-# INF2604 - Computação Gráfica
+# INF2604 - Computação Gráfica - Raytracer
 
-Este repositório contém implementações para o curso de Computação Gráfica, incluindo um raytracer em C++.
+Este repositório contém a implementação de um Ray Tracer em C++ desenvolvido para a disciplina de Computação Gráfica (INF2604).
+
+O ray tracer implementa renderização de cenas 3D com:
+*   Geometrias básicas: Esferas e Caixas (Axis-Aligned Bounding Boxes).
+*   Iluminação: Modelo de Phong (ambiente, difusa, especular), Luz Pontual e Luz Retangular (área).
+*   Sombreamento: Geração de sombras duras (PointLight) e suaves (RectangularLight).
+*   Materiais: Materiais difusos, especulares, reflexivos e emissivos.
+*   Transformações: Translação e Rotação aplicadas aos objetos.
+*   Anti-aliasing: Múltiplas amostras por pixel (amostragem estratificada).
+
+## Requisitos de Ambiente
+
+Para compilar e executar os exemplos, você precisará de:
+
+1.  **Compilador C++:** Um compilador que suporte C++11 ou superior (ex: g++).
+2.  **OpenMP:** A biblioteca OpenMP para paralelização (geralmente incluída com o g++ ou instalável separadamente via gerenciador de pacotes, como `apt install libomp-dev` no Ubuntu/Debian ou via Xcode Command Line Tools no macOS).
+
+(Opcional)
+3.  **ImageMagick:** Para converter automaticamente as imagens `.ppm` geradas para formatos como `.png` (comando `convert`).
+
+## Compilando e Executando os Exemplos
+
+Cada arquivo `.cpp` dentro do diretório `raytracer/examples/` representa uma cena independente e pode ser compilado e executado separadamente.
+
+Navegue até o diretório `raytracer`:
+```bash
+cd raytracer
+```
+
+Para compilar um exemplo específico (substitua `nome_do_exemplo`), use um comando similar a este:
+
+```bash
+# Exemplo de compilação (usando g++)
+g++ -std=c++11 -O3 -fopenmp examples/nome_do_exemplo.cpp -o build/nome_do_exemplo -lm
+```
+
+*   `-std=c++11`: Garante a compatibilidade com C++11.
+*   `-O3`: Habilita otimizações para performance.
+*   `-fopenmp`: Habilita o suporte a OpenMP para paralelização.
+*   `-o build/nome_do_exemplo`: Especifica o nome e local do executável (criará o diretório `build` se não existir).
+*   `-lm`: Linka a biblioteca matemática (pode ser necessária em alguns sistemas).
+
+Após a compilação, execute o programa:
+
+```bash
+# Exemplo de execução
+./build/nome_do_exemplo
+```
+
+O programa renderizará a cena e salvará a imagem resultante no formato `.ppm` no diretório raiz do `raytracer` (ou onde o código especificar). Acompanhe o progresso da renderização no terminal.
+
+**Exemplos Principais:**
+
+*   **Cornell Box (Luz Pontual):**
+    ```bash
+    g++ -std=c++11 -O3 -fopenmp examples/cornell_box.cpp -o build/cornell_box -lm
+    ./build/cornell_box
+    # Gera cornell_box_reference.ppm
+    ```
+*   **Cornell Box (Luz Retangular):**
+    ```bash
+    g++ -std=c++11 -O3 -fopenmp examples/rectangular_light_scene.cpp -o build/rectangular_light_scene -lm
+    ./build/rectangular_light_scene
+    # Gera rectangular_light_scene.ppm
+    ```
+*   **Cena Reflexiva (Chão):**
+    ```bash
+    g++ -std=c++11 -O3 -fopenmp examples/reflective_floor.cpp -o build/reflective_floor -lm
+    ./build/reflective_floor
+    # Gera reflective_floor.ppm
+    ```
+*   **Cena Reflexiva (Esferas):**
+    ```bash
+    g++ -std=c++11 -O3 -fopenmp examples/reflective_scene.cpp -o build/reflective_scene -lm
+    ./build/reflective_scene
+    # Gera reflective_scene.ppm
+    ```
+
+## Exemplos de Imagens Renderizadas
+
+Aqui estão alguns exemplos das imagens geradas pelo raytracer (versões com 100 amostras por pixel):
+
+| Cornell Box (Luz Pontual) | Cornell Box (Luz Retangular) | Cena Reflexiva (Chão) |
+| :-----------------------: | :--------------------------: | :-------------------: |
+| ![Cornell Box Point Light](raytracer/output/cornell_box/100_samples/cornell_box_100samples.png) | ![Cornell Box Rect Light](raytracer/output/rectangular_light_scene/100_samples/rectangular_light_scene_100samples.png) | ![Reflective Floor](raytracer/output/reflective_floor/100_samples/reflective_floor_100samples.png) |
+
+*(Nota: Os caminhos das imagens no README presumem que as imagens PNG estão salvas nos diretórios de saída correspondentes, como mostrado. Ajuste os caminhos se necessário.)*
 
 ## Raytracer
 
